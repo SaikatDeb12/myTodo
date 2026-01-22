@@ -1,0 +1,25 @@
+package router
+
+import (
+	"myTodo/internal/handlers"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+)
+
+func setUpRouter() http.Handler{
+	r := chi.NewRouter()
+
+	// r.Use(middleware.Logger)
+	// r.Use(middleware.Recoverer)
+	// r.Use(middleware.AllowContentType("application/json"))
+
+	r.Route("/todos", func(r chi.Router){
+		r.Get("/", handlers.GetTodos)
+		r.Post("/", handlers.CreateTodo)
+		r.Patch("/{id}", handlers.UpdateTodo)
+		r.Delete("/{id}", handlers.DeleteTodo)
+	})
+
+	return r
+}
