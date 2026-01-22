@@ -75,11 +75,17 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request){
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json" );
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	for i, todo := range storage.Todos{
 		if (todo.ID==id){
 			storage.Todos=append(storage.Todos[:i], storage.Todos[i+1:]...)
-			w.WriteHeader(http.StatusNoContent)
+			w.WriteHeader(http.StatusOK)
+
+			// sending msg in json format
+			json.NewEncoder(w).Encode(map[string] string{
+				"msg" : "Deleted successfully",
+			})
 			return
 		}
 	}
