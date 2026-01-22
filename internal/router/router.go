@@ -16,8 +16,9 @@ func SetUpRouter() http.Handler{
 
 	r.Route("/todos", func(r chi.Router){
 		r.Get("/", handlers.GetTodos)
+		r.Get("/{id}", handlers.GetTodo)
 		r.Post("/", handlers.CreateTodo)
-		r.Patch("/{id}", handlers.UpdateTodo)
+		r.Put("/{id}", handlers.UpdateTodo)
 		r.Delete("/{id}", handlers.DeleteTodo)
 	})
 

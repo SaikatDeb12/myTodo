@@ -12,6 +12,8 @@ import (
 )
 
 func GetTodos(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json");
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(storage.Todos)
 }
 
@@ -19,17 +21,39 @@ func CreateTodo(w http.ResponseWriter, r *http.Request){
 	var todo models.Todo
 	err :=json.NewDecoder(r.Body).Decode(&todo)
 	if(err != nil){
-		utils.RespondError(w, http.StatusBadRequest, err, "Enable to decode the body")
+		utils.RespondError(w, http.StatusBadRequest, err, "Decode Error")
 	}
 
-	len := len(storage.Todos)
-	todo.ID=len+1
+	nextID := len(storage.Todos)+1
+	todo.ID=nextID
 	storage.Todos=append(storage.Todos, todo)
+
+	w.Header().Set("Content-Type", "application/json");
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(todo)
 }
 
+func GetTodo(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json");
+	id,err := strconv.Atoi(chi.URLParam(r, "id"))
+	if(err!=nil){
+		utils.RespondError(w, http.StatusBadRequest, err, "Invalid Input")
+		return
+	}
+
+	for _,todo := range(storage.Todos){
+		if(todo.ID==id){
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(todo)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNotFound)
+}
+
 func UpdateTodo(w http.ResponseWriter, r *http.Request){
+	//using chi.URLParam
 	id, _ :=strconv.Atoi(chi.URLParam(r, "id"))
 
 	var updated models.Todo
@@ -41,8 +65,8 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request){
 	for i,todo := range storage.Todos{
 		if todo.ID==id{
 			storage.Todos[i].Title=updated.Title
-			storage.Todos[i].Completed=updated.Completed
 			storage.Todos[i].Details=updated.Details
+			storage.Todos[i].Completed=updated.Completed
 			json.NewEncoder(w).Encode(storage.Todos[i])
 			return
 		}
@@ -51,7 +75,7 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request){
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request){
-	id,_ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	for i, todo := range storage.Todos{
 		if (todo.ID==id){
 			storage.Todos=append(storage.Todos[:i], storage.Todos[i+1:]...)
