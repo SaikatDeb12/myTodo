@@ -17,6 +17,11 @@ func GetTodos(w http.ResponseWriter, r *http.Request){
 
 func CreateTodo(w http.ResponseWriter, r *http.Request){
 	var todo models.Todo
+	err :=json.NewDecoder(r.Body).Decode(&todo)
+	if(err != nil){
+		utils.RespondError(w, http.StatusBadRequest, err, "Enable to decode the body")
+	}
+
 	len := len(storage.Todos)
 	todo.ID=len+1
 	storage.Todos=append(storage.Todos, todo)

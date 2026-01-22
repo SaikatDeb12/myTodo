@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func setUpRouter() http.Handler{
+func SetUpRouter() http.Handler{
 	r := chi.NewRouter()
 
 	// r.Use(middleware.Logger)
